@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Hangfire.NetCoreServices": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
