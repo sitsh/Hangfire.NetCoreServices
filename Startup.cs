@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Hangfire.NetCoreServices.Extensions;
 using Hangfire.NetCoreServices.Impl;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
@@ -30,12 +30,9 @@ namespace Hangfire.NetCoreServices
 
         public void ConfigureServices(IServiceCollection services)
         {
-
-
+            
             services.AddHangfire(configuration =>
             {
-
-
                 // 注入 HangFire 服务器数据库配置
                 string connectionString = Configuration["Hangfire:SqlConnectionString"];
                 //configuration.UseSqlServerStorage(@"Data Source=(LocalDb)\MSSQLLocalDB;Integrated Security=True;Initial Catalog=Hangfire.WindowsServiceApplication;",
@@ -47,10 +44,10 @@ namespace Hangfire.NetCoreServices
                         SchemaName = "HangFire"
                     });
             });
+            //加入 HealthChecks 健康监控服务
+            services.AddHealthChecksService(Configuration);
             //hangfire 业务job 接口注入
             services.AddScoped<ICosJob, CosJob>();
-
-
             //注入其他 DB等等 ....
 
         }
@@ -66,9 +63,6 @@ namespace Hangfire.NetCoreServices
             {
                 app.UseHsts();
             }
-            
-
-
             var options = new BackgroundJobServerOptions
             {
                 // This is the default value
@@ -79,6 +73,9 @@ namespace Hangfire.NetCoreServices
             //启用 Hangfire 仪表板
             app.UseHangfireDashboard();
             app.UseHangfireServer(options);
+
+            //使用 HealthChecks 健康监控服务
+            app.UseHealthChecksService();
         }
 
        
